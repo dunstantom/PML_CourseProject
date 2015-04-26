@@ -1,0 +1,32 @@
+---
+title: "Machine Learning Course Project"
+author: "Jon Purnell"
+date: "Monday, April 20, 2015"
+output: html_document
+---
+
+# Data Preparation
+
+First, we get the libraries and read in the data.
+```{r}
+set.seed(12345)
+library(caret)
+library(randomForest)
+training <- read.csv(file = "pml-training.csv",header=T)
+```
+
+I split the data so that 60% is used for training and 40% is used for testing. Then, I drop the features that are just NA or empty values. I also drop some of the index-like features, like user_name, timestamps, X, and window indicies. 
+```{r}
+inTrain <- createDataPartition(y=training$classe,p=0.6,list=F)
+feats <- names(training)[apply(training,2,function(x) { max(mean(is.na(x)), mean(x == ""),na.rm=T)}) == 0]
+feats <- feats[-c(1,2,3,4,5,6,7)]
+trainData <- training[inTrain,feats]
+testData <- training[-inTrain,feats]
+```
+
+```{r}
+fit <- randomForest(classe~.,data=trainData)
+mean(predict(fit,newdata=trainData) == trainData$classe)
+mean(predict(fit,newdata=testData) == testData$classe)
+```
+I use a random forest to model the data. We see that it fits the training data perfectly, which can be cause for concern that the model overfitted. However, the estimate of out-of-sample error is 0.9933, which gives us confidence that we have not overfitted the data and that it will generalize well. 
