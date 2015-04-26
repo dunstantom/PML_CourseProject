@@ -81,6 +81,26 @@ mean(predict(fit,newdata=trainData) == trainData$classe)</code></pre>
 <pre class="r"><code>mean(predict(fit,newdata=testData) == testData$classe)</code></pre>
 <pre><code>## [1] 0.9933724</code></pre>
 <p>I use a random forest to model the data. We see that it fits the training data perfectly, which can be cause for concern that the model overfitted. However, the estimate of out-of-sample error is 0.9933, which gives us confidence that we have not overfitted the data and that it will generalize well.</p>
+<p>I estimate the out-of-sample error by training random forests with 3-fold cross validation.</p>
+<pre class="r"><code>cvData &lt;- training[,feats]
+folds &lt;- createFolds(y=cvData$classe,k=3,list=T,returnTrain=T)
+
+trainData &lt;- cvData[folds[[1]],]
+testData &lt;- cvData[-folds[[1]],]
+fit1 &lt;- randomForest(classe~.,data=trainData)
+mean(predict(fit,newdata=testData) == testData$classe)</code></pre>
+<pre><code>## [1] 0.9980122</code></pre>
+<pre class="r"><code>trainData &lt;- cvData[folds[[2]],]
+testData &lt;- cvData[-folds[[2]],]
+fit1 &lt;- randomForest(classe~.,data=trainData)
+mean(predict(fit,newdata=testData) == testData$classe)</code></pre>
+<pre><code>## [1] 0.9966366</code></pre>
+<pre class="r"><code>trainData &lt;- cvData[folds[[3]],]
+testData &lt;- cvData[-folds[[3]],]
+fit1 &lt;- randomForest(classe~.,data=trainData)
+mean(predict(fit,newdata=testData) == testData$classe)</code></pre>
+<pre><code>## [1] 0.997401</code></pre>
+<p>We can see that from each of the folds, we get a high accuracy from random forests, so we have high confidence in the performance of our model with out-of-sample data.</p>
 </div>
 
 
